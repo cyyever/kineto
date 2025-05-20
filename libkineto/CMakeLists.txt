@@ -63,19 +63,17 @@ if(CUDAToolkit_FOUND)
   endif()
 
   if (NOT CUDA_nvperf_host_LIBRARY)
-    set(CUDA_NVPERF_HOST_LIB_NAME "libnvperf_host.so")
+    get_target_property(cupti_dir CUDA::cupti LOCATION)
+    set(CUDA_NVPERF_HOST_LIB_NAME "nvperf_host")
     find_library(CUDA_NVPERF_HOST_LIB_PATH ${CUDA_NVPERF_HOST_LIB_NAME} PATHS
-        ${CUDA_SOURCE_DIR}
-        ${CUDA_SOURCE_DIR}/extras/CUPTI/lib64
-        ${CUDA_SOURCE_DIR}/lib
-        ${CUDA_SOURCE_DIR}/lib64
+        "${cupti_dir}"
         NO_DEFAULT_PATH)
+    if(CUDA_NVPERF_HOST_LIB_PATH)
+      set(CUDA_nvperf_host_LIBRARY ${CUDA_NVPERF_HOST_LIB_PATH})
+      message(STATUS "  CUDA_nvperf_host_LIBRARY = ${CUDA_nvperf_host_LIBRARY}")
+    endif()
   endif()
 
-  if(CUDA_NVPERF_HOST_LIB_PATH)
-    set(CUDA_nvperf_host_LIBRARY ${CUDA_NVPERF_HOST_LIB_PATH})
-    message(STATUS "  CUDA_nvperf_host_LIBRARY = ${CUDA_nvperf_host_LIBRARY}")
-  endif()
 endif()
 
 if (KINETO_BUILD_TESTS)
