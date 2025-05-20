@@ -16,7 +16,7 @@ function(get_filelist name outputvar)
   execute_process(
     COMMAND Python::Interpreter -c
             "exec(open('libkineto_defs.bzl').read());print(';'.join(${name}))"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
     OUTPUT_VARIABLE _tempvar)
   string(REPLACE "\n" "" _tempvar "${_tempvar}")
   set(${outputvar} ${_tempvar} PARENT_SCOPE)
