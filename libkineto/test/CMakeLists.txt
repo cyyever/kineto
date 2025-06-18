@@ -163,5 +163,5 @@ target_link_libraries(CuptiProfilerApiTest PRIVATE
 target_include_directories(CuptiProfilerApiTest PRIVATE
     "${LIBKINETO_DIR}"
     "${LIBKINETO_DIR}/include"
-    "${CUPTI_INCLUDE_DIR}")
+)
 #add_test(NAME CuptiProfilerApiTest_ COMMAND CuptiProfilerApiTest)

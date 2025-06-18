@@ -189,25 +189,21 @@ target_include_directories(kineto_api PUBLIC
       $<BUILD_INTERFACE:${FMT_INCLUDE_DIR}>
       $<BUILD_INTERFACE:${LIBKINETO_INCLUDE_DIR}>)
 
+file(WRITE ${CMAKE_BINARY_DIR}/dummy.cpp "")
 if(KINETO_LIBRARY_TYPE STREQUAL "static")
-  add_library(kineto STATIC
-    $<TARGET_OBJECTS:kineto_base>
-    $<TARGET_OBJECTS:kineto_api>)
+  add_library(kineto STATIC ${CMAKE_BINARY_DIR}/dummy.cpp)
 elseif(KINETO_LIBRARY_TYPE STREQUAL "shared" OR (KINETO_LIBRARY_TYPE STREQUAL "default" AND BUILD_SHARED_LIBS))
-  add_library(kineto SHARED
-    $<TARGET_OBJECTS:kineto_base>
-    $<TARGET_OBJECTS:kineto_api>)
+  add_library(kineto SHARED ${CMAKE_BINARY_DIR}/dummy.cpp)
   set_property(TARGET kineto_base PROPERTY POSITION_INDEPENDENT_CODE ON)
   set_property(TARGET kineto_api PROPERTY POSITION_INDEPENDENT_CODE ON)
   set_target_properties(kineto PROPERTIES
     CXX_VISIBILITY_PRESET hidden)
 elseif(KINETO_LIBRARY_TYPE STREQUAL "default")
-  add_library(kineto
-    $<TARGET_OBJECTS:kineto_base>
-    $<TARGET_OBJECTS:kineto_api>)
+  add_library(kineto ${CMAKE_BINARY_DIR}/dummy.cpp)
 else()
   message(FATAL_ERROR "Unsupported library type ${KINETO_LIBRARY_TYPE}")
 endif()
+target_link_libraries(kineto kineto_base kineto_api)
 
 if(NOT LIBKINETO_NOROCTRACER)
   find_library(ROCTRACER_LIBRARY NAMES libroctracer64.so HINTS
