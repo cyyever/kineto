@@ -215,7 +215,7 @@ if(NOT LIBKINETO_NOROCTRACER)
 endif()
 
 if(NOT LIBKINETO_NOCUPTI)
-  target_link_libraries(kineto_base PUBLIC CUDA::cupti)
+  target_link_libraries(kineto_base PUBLIC CUDA::cupti CUDA::cudart CUDA::cuda_driver)
 endif()
 if(TARGET CUDA::nvperf_host)
   target_link_libraries(kineto_base PUBLIC CUDA::nvperf_host)
@@ -223,10 +223,9 @@ endif()
 if(DEFINED LIBKINETO_NOXPUPTI AND NOT LIBKINETO_NOXPUPTI)
   target_link_libraries(kineto "${XPU_xpupti_LIBRARY}")
 endif()
-target_link_libraries(kineto $<BUILD_INTERFACE:fmt::fmt-header-only>)
-add_dependencies(kineto fmt::fmt-header-only)
+target_link_libraries(kineto_base PRIVATE fmt::fmt-header-only)
 
-install(TARGETS kineto EXPORT kinetoLibraryConfig
+install(TARGETS kineto kineto_base kineto_api dynolog_ipcfabric_lib EXPORT kinetoLibraryConfig
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
