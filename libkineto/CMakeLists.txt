@@ -219,7 +219,7 @@ if(NOT LIBKINETO_NOROCTRACER)
 endif()
 
 if(NOT LIBKINETO_NOCUPTI)
-  target_link_libraries(kineto CUDA::cupti)
+  target_link_libraries(kineto CUDA::cupti CUDA::cudart)
 endif()
 if(TARGET CUDA::nvperf_host)
   target_link_libraries(kineto CUDA::nvperf_host)
