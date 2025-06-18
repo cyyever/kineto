@@ -134,7 +134,7 @@ endif()
 target_compile_options(kineto_base PRIVATE "${KINETO_COMPILE_OPTIONS}")
 target_compile_options(kineto_api PRIVATE "${KINETO_COMPILE_OPTIONS}")
 
-if(NOT TARGET fmt)
+if(NOT TARGET fmt::fmt-header-only)
   if(NOT FMT_SOURCE_DIR)
     set(FMT_SOURCE_DIR "${LIBKINETO_THIRDPARTY_DIR}/fmt"
       CACHE STRING "fmt source directory from submodules")
@@ -144,12 +144,7 @@ if(NOT TARGET fmt)
   # FMT and some other libraries use BUILD_SHARED_LIBS to control
   # the library type.
   # Save and restore the value after configuring FMT
-  set(TEMP_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-  set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libs" FORCE)
-  set(FMT_LIBRARY_TYPE static CACHE STRING "Set lib type to static")
   add_subdirectory("${FMT_SOURCE_DIR}" "${LIBKINETO_BINARY_DIR}/fmt")
-  set_property(TARGET fmt PROPERTY POSITION_INDEPENDENT_CODE ON)
-  set(BUILD_SHARED_LIBS ${TEMP_BUILD_SHARED_LIBS} CACHE BOOL "Build shared libs" FORCE)
 endif()
 
 set(FMT_INCLUDE_DIR "${FMT_SOURCE_DIR}/include")
@@ -176,7 +171,6 @@ target_include_directories(kineto_base PUBLIC
       $<BUILD_INTERFACE:${LIBKINETO_INCLUDE_DIR}>
       $<BUILD_INTERFACE:${LIBKINETO_SOURCE_DIR}>
       $<BUILD_INTERFACE:${DYNOLOG_INCLUDE_DIR}>
-      $<BUILD_INTERFACE:${FMT_INCLUDE_DIR}>
       $<BUILD_INTERFACE:${IPCFABRIC_INCLUDE_DIR}>
       $<BUILD_INTERFACE:${ROCTRACER_INCLUDE_DIR}>
       $<BUILD_INTERFACE:${ROCM_INCLUDE_DIRS}>)
@@ -186,8 +180,8 @@ if(DEFINED LIBKINETO_NOXPUPTI AND NOT LIBKINETO_NOXPUPTI)
 endif()
 
 target_include_directories(kineto_api PUBLIC
-      $<BUILD_INTERFACE:${FMT_INCLUDE_DIR}>
       $<BUILD_INTERFACE:${LIBKINETO_INCLUDE_DIR}>)
+target_link_libraries(kineto_api PRIVATE fmt::fmt-header-only)
 
 file(WRITE ${CMAKE_BINARY_DIR}/dummy.cpp "")
 if(KINETO_LIBRARY_TYPE STREQUAL "static")
