@@ -13,6 +13,7 @@
 #include <ostream>
 #include <thread>
 #include <unordered_map>
+#include <utility>
 
 // TODO(T90238193)
 // @lint-ignore-every CLANGTIDY facebook-hte-RelativeInclude
@@ -39,7 +40,7 @@ class ActivityLogger {
   virtual ~ActivityLogger() = default;
 
   struct OverheadInfo {
-    explicit OverheadInfo(const std::string& name) : name(name) {}
+    explicit OverheadInfo(std::string name) : name(std::move(name)) {}
     const std::string name;
   };
 

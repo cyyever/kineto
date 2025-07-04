@@ -193,12 +193,12 @@ void configureHeartbeatMonitor(
 } // namespace
 
 void EventProfilerController::addLoggerFactory(
-    std::function<unique_ptr<SampleListener>(const Config&)> factory) {
+    const std::function<unique_ptr<SampleListener>(const Config&)>& factory) {
   loggerFactories().push_back(factory);
 }
 
 void EventProfilerController::addOnDemandLoggerFactory(
-    std::function<unique_ptr<SampleListener>(const Config&)> factory) {
+    const std::function<unique_ptr<SampleListener>(const Config&)>& factory) {
   onDemandLoggerFactories().push_back(factory);
 }
 

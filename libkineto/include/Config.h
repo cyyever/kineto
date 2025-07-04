@@ -370,7 +370,7 @@ class Config : public AbstractConfig {
                     fallbackProfileStartTime) override;
 
   static void addConfigFactory(
-      std::string name,
+      const std::string& name,
       std::function<AbstractConfig*(Config&)> factory);
 
   void print(std::ostream& s) const;

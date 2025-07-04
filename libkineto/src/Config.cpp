@@ -8,17 +8,18 @@
 
 #include "Config.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <fmt/chrono.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <fmt/ranges.h>
-#include <time.h>
+#include <ctime>
 #include <chrono>
 #include <functional>
 #include <mutex>
 #include <ostream>
+#include <utility>
 
 #include "Logger.h"
 #include "ThreadUtil.h"
@@ -178,10 +179,10 @@ namespace {
 
 struct FactoryMap {
   void addFactory(
-      std::string name,
+      const std::string& name,
       std::function<AbstractConfig*(Config&)> factory) {
     std::lock_guard<std::mutex> lock(lock_);
-    factories_[name] = factory;
+    factories_[name] = std::move(factory);
   }
 
   void addFeatureConfigs(Config& cfg) {
@@ -209,11 +210,11 @@ std::shared_ptr<FactoryMap> configFactories() {
 } // namespace
 
 void Config::addConfigFactory(
-    std::string name,
+    const std::string& name,
     std::function<AbstractConfig*(Config&)> factory) {
   auto factories = configFactories();
   if (factories) {
-    factories->addFactory(name, factory);
+    factories->addFactory(name, std::move(factory));
   }
 }
 
@@ -615,7 +616,7 @@ void Config::printActivityProfilerConfig(std::ostream& s) const {
   std::vector<std::string> activities;
   activities.reserve(selectedActivityTypes_.size());
   for (const auto& activity : selectedActivityTypes_) {
-    activities.push_back(toString(activity));
+    activities.emplace_back(toString(activity));
   }
   fmt::print(s, "  Enabled activities: {}\n", fmt::join(activities, ","));
 

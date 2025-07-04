@@ -24,7 +24,7 @@ constexpr char kEmptyTrace[] =
 #include <map>
 #include <vector>
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace libkineto {
 

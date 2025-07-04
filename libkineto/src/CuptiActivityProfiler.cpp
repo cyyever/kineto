@@ -303,7 +303,7 @@ void CuptiActivityProfiler::processTraceInternal(ActivityLogger& logger) {
     addMetadata(pair.first, pair.second);
   }
   std::vector<std::string> device_properties;
-  if (auto props = devicePropertiesJson(); !props.empty()) {
+  if (const auto& props = devicePropertiesJson(); !props.empty()) {
     device_properties.push_back(props);
   }
   for (const auto& session : sessions_) {
@@ -413,7 +413,7 @@ CuptiActivityProfiler::CpuGpuSpanPair& CuptiActivityProfiler::recordTraceSpan(
     int gpuOpCount) {
   TraceSpan gpu_span(gpuOpCount, span.iteration, span.name, "GPU: ");
   auto& iterations = traceSpans_[span.name];
-  iterations.push_back({span, gpu_span});
+  iterations.emplace_back(span, gpu_span);
   return iterations.back();
 }
 
@@ -433,9 +433,9 @@ void CuptiActivityProfiler::processCpuTrace(
     VLOG(2) << act->correlationId() << ": OP " << act->activityName;
     if (derivedConfig_->profileActivityTypes().count(act->type())) {
       static_assert(
-          std::is_same<
-              std::remove_reference<decltype(act)>::type,
-              const std::unique_ptr<GenericTraceActivity>>::value,
+          std::is_same_v<
+              std::remove_reference_t<decltype(act)>,
+              const std::unique_ptr<GenericTraceActivity>>,
           "handleActivity is unsafe and relies on the caller to maintain not "
           "only lifetime but also address stability.");
       if (act->duration() < 0) {
@@ -1270,7 +1270,7 @@ void CuptiActivityProfiler::stopTraceInternal(
     VLOG(0) << "CollectTrace -> ProcessTrace";
   } else {
     LOG(WARNING) << "Called stopTrace with state == "
-                 << static_cast<std::underlying_type<RunloopState>::type>(
+                 << static_cast<std::underlying_type_t<RunloopState>>(
                         currentRunloopState_.load());
   }
   for (auto& session : sessions_) {
@@ -1521,7 +1521,7 @@ void CuptiActivityProfiler::finalizeTrace(
 
 #ifdef HAS_CUPTI
   // Overhead info
-  overheadInfo_.push_back(ActivityLogger::OverheadInfo("CUPTI Overhead"));
+  overheadInfo_.emplace_back("CUPTI Overhead");
   for (const auto& info : overheadInfo_) {
     logger.handleOverheadInfo(info, captureWindowStartTime_);
   }

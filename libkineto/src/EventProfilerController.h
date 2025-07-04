@@ -40,10 +40,10 @@ class EventProfilerController : public ConfigLoader::ConfigHandler {
   static void stopIfEnabled(CUcontext ctx);
 
   static void addLoggerFactory(
-      std::function<std::unique_ptr<SampleListener>(const Config&)> factory);
+      const std::function<std::unique_ptr<SampleListener>(const Config&)>& factory);
 
   static void addOnDemandLoggerFactory(
-      std::function<std::unique_ptr<SampleListener>(const Config&)> factory);
+      const std::function<std::unique_ptr<SampleListener>(const Config&)>& factory);
 
   bool canAcceptConfig() override;
 

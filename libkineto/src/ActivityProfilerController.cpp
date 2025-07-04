@@ -11,6 +11,7 @@
 #include <chrono>
 #include <functional>
 #include <thread>
+#include <utility>
 
 #include "ActivityLoggerFactory.h"
 #include "ActivityTrace.h"
@@ -37,7 +38,7 @@ static std::shared_ptr<LoggerCollector>& loggerCollectorFactory() {
 }
 
 void ActivityProfilerController::setLoggerCollectorFactory(
-    std::function<std::shared_ptr<LoggerCollector>()> factory) {
+    const std::function<std::shared_ptr<LoggerCollector>()>& factory) {
   loggerCollectorFactory() = factory();
 }
 
@@ -77,9 +78,7 @@ ActivityProfilerController::ActivityProfilerController(
 
 ActivityProfilerController::~ActivityProfilerController() {
   configLoader_.removeHandler(ConfigLoader::ConfigKind::ActivityProfiler, this);
-  for (int thread_type = 0; thread_type < ThreadType::THREAD_MAX_COUNT;
-       thread_type++) {
-    std::thread* profilerThread = profilerThreads_[thread_type];
+  for (auto profilerThread : profilerThreads_) {
     if (profilerThread) {
       // signaling termination of the profiler loop
       stopRunloop_ = true;
@@ -112,7 +111,7 @@ static ActivityLoggerFactory& loggerFactory() {
 void ActivityProfilerController::addLoggerFactory(
     const std::string& protocol,
     ActivityLoggerFactory::FactoryFunc factory) {
-  loggerFactory().addProtocol(protocol, factory);
+  loggerFactory().addProtocol(protocol, std::move(factory));
 }
 
 static std::unique_ptr<ActivityLogger> makeLogger(const Config& config) {
@@ -255,10 +254,10 @@ void ActivityProfilerController::profilerLoop() {
 }
 
 void ActivityProfilerController::memoryProfilerLoop() {
-  std::string path = asyncRequestConfig_->activitiesLogFile();
-  auto profile_time = asyncRequestConfig_->profileMemoryDuration();
-  std::unique_ptr<Config> config = asyncRequestConfig_->clone();
   while (!stopRunloop_) {
+    std::string path;
+    int profile_time = 0;
+    std::unique_ptr<Config> config;
     // Perform Double-checked locking to reduce overhead of taking lock.
     if (asyncRequestConfig_ && !profiler_->isActive()) {
       std::lock_guard<std::mutex> lock(asyncConfigLock_);
