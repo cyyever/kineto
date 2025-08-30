@@ -54,6 +54,11 @@ endif()
 option(LIBKINETO_NOCUPTI "Disable CUPTI" OFF)
 
 find_package(CUDAToolkit)
+if(CUDAToolkit_FOUND)
+  if("${CUDAToolkit_VERSION}" VERSION_LESS 12.0)
+    message(FATAL_ERROR "CUDA >= 12.0 is required")
+  endif()
+endif()
 if(NOT LIBKINETO_NOCUPTI)
   if(NOT CUPTI_INCLUDE_DIR)
     find_path(CUPTI_INCLUDE_DIR cupti.h PATHS

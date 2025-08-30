@@ -84,13 +84,11 @@ void CuptiCallbackApi::__callback_switchboard(
               &callbacks_
                    .runtime[CUDA_LAUNCH_KERNEL - __RUNTIME_CB_DOMAIN_START];
           break;
-#if defined(CUDA_VERSION) && (CUDA_VERSION >= 11080)
         case CUPTI_RUNTIME_TRACE_CBID_cudaLaunchKernelExC_v11060:
           cblist =
               &callbacks_
                    .runtime[CUDA_LAUNCH_KERNEL_EXC - __RUNTIME_CB_DOMAIN_START];
           break;
-#endif
         default:
           break;
       }
